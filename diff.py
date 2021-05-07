@@ -1,76 +1,69 @@
+import os
 from FileParser import FileParser
 
 def compare_lists(old, new):
 
-    old_index = 0
-    new_index = 0
-    last_old = 0
-    last_new = 0 
-    old_length = len(old)
-    new_length = len(new)
+    last_found = 0
 
-    delete_search = False
-    insert_search = False
-    searching = False
+    removed  = {}
+    inserted = {}
 
-    removed  = []
-    inserted = []
-
-    while True:
-        if delete_search and new_index == new_length:
-            delete_search = False
-            new_index = last_new
-            insert_search = True
-
-        if old_index == old_length and new_index == new_length:
-            break
-
-        if old_index == old_length:
-            inserted += new[old_index:new_length]
-            break
-            
-        if new_index == new_length:
-            removed += old[new_index:old_length]
-            break 
-
-        if old[old_index] == new[new_index]:
-            if (not delete_search and not insert_search):
-                old_index += 1
-                new_index += 1
-
-            if delete_search:
-                removed += new[old_index:new_index]
-                delete_search = False
-            
-            if insert_search:
-                inserted += old[new_index:old_index]
-                insert_search = False
-
-            continue
+    for item,token in enumerate(old):
+        try:
+            offset_index = new.index(token)
+        except ValueError:
+            removed[item] = token
         else:
-            delete_search = True
-            last_new = new_index
-        
+            insertion_slice = new[last_found:offset_index]
 
-        
+            for index in range(last_found, offset_index):
+                inserted[index] = insertion_slice[index - last_found]
+            
+            last_found = offset_index + 1
 
-        if delete_search:
-            new_index += 1
-        
-        if insert_search:
-            old_index += 1
+    insertion_slice = new[last_found:len(new)]
+    for index in range(last_found, len(new)):
+        inserted[index] = insertion_slice[index - last_found]
 
     return removed,inserted
+
+def display_differences(i_dict, r_dict):
+    
+    if i_dict == {} and r_dict == {}:
+        print("The files are identical.")
+    else:
+        print("File diffs: ")
+        for line_num in i_dict:
+            print('\x1b[6;30;42m+%d %s \x1b[0m' % (line_num, i_dict[line_num]))
+        
+        for line_num in r_dict:
+            print('\x1b[0;30;41m-%d %s \x1b[0m' % (line_num, r_dict[line_num]))
+
 
 def main(o_file, n_file):
     old = FileParser(o_file)
     new = FileParser(n_file)
 
-    print(old.get_strings())
-    print(new.get_strings())
-
-    print(compare_lists(old.get_strings(), new.get_strings()))
+    if not old.is_valid():
+        return
+    
+    if not new.is_valid():
+        return
+    
+    i_dict, r_dict = compare_lists(old.get_strings(), new.get_strings())
+    display_differences(i_dict,r_dict)
 
 if __name__ == '__main__':
-    #Arg checking.
-    main('old.txt', 'new.txt')
+    arg_one = os.sys.argv[1]
+    
+    if arg_one == '--help':
+        print("Welcome to the file diff checker!")
+        print("Usage is simple, just enter the original")
+        print("file and the file you want to compare it")
+        print("to and see the differences.")
+    else:
+        file_one = os.sys.argv[1]
+        file_two = os.sys.argv[2]
+
+        #Arg checking.
+        main(file_one, file_two)

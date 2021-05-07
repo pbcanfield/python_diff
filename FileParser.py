@@ -13,6 +13,9 @@ class FileParser:
     def __del__(self):
         if self.__file != None:
             self.__file.close()
+    
+    def is_valid(self):
+        return not (self.__file == None)
 
     def parse_strings(self):
         self.__strings = [s.rstrip() for s in self.__file]
