@@ -54,14 +54,18 @@ def main(o_file, n_file):
     display_differences(i_dict,r_dict)
 
 if __name__ == '__main__':
-    arg_one = os.sys.argv[1]
     
-    if arg_one == '--help':
-        print("Welcome to the file diff checker! Usage is simple, just enter the original ", end = '')
-        print("file and the file you want to compare it to and see the differences.")
-    else:
-        file_one = os.sys.argv[2]
-        file_two = os.sys.argv[1]
+    if len(os.sys.argv) == 1:
+        print("Please enter either file arguments or '--help' for help.")
+    else:    
+        arg_one = os.sys.argv[1]
 
-        #Arg checking.
-        main(file_one, file_two)
+        if arg_one == '--help':
+            print("Welcome to the file diff checker! Usage is simple, just enter the original ", end = '')
+            print("file and the file you want to compare it to and see the differences.")
+        else:
+            file_one = os.sys.argv[2]
+            file_two = os.sys.argv[1]
+
+            #Arg checking.
+            main(file_one, file_two)
